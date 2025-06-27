@@ -1,0 +1,44 @@
+.analytics-card {
+  margin-bottom: 20px;
+}
+
+.btn-analytics {
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  color: #495057;
+  transition: all 0.3s ease;
+}
+
+.btn-analytics:hover {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+}
+
+.btn-analytics.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-analytics.disabled:hover {
+  background-color: #f8f9fa;
+  border-color: #e9ecef;
+  color: #495057;
+  transform: none;
+  box-shadow: none;
+}
+
+.fa-3x {
+  margin-bottom: 10px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.lead {
+  font-size: 1.2em;
+  font-weight: 300;
+}
