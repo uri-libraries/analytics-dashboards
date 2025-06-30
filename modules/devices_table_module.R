@@ -6,33 +6,21 @@ devicesTableUI <- function(id) {
     
     fluidRow(
       column(12,
-             p("Raw device usage data with filtering and export options.")
+             p("Parsed data preview with export options.")
       )
     ),
     
-    # Filters
+    # Download button
     fluidRow(
       column(12,
              wellPanel(
                fluidRow(
-                 column(3,
-                        selectInput(ns("location_filter"), "Filter by Location:", 
-                                    choices = c("All"),
-                                    selected = "All")
-                 ),
-                 column(3,
-                        selectInput(ns("device_filter"), "Filter by Device Type:", 
-                                    choices = c("All"),
-                                    selected = "All")
-                 ),
-                 column(3,
-                        dateRangeInput(ns("date_range"), "Date Range:",
-                                       start = Sys.Date() - 30,
-                                       end = Sys.Date())
+                 column(9,
+                        h4("Parsed Data Preview")
                  ),
                  column(3,
                         downloadButton(ns("download_devices"), "Download CSV", 
-                                       class = "btn-primary", style = "margin-top: 25px;")
+                                       class = "btn-primary", style = "margin-top: 5px;")
                  )
                )
              )

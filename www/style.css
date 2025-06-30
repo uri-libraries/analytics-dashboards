@@ -1,13 +1,36 @@
 .analytics-card {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* Add flex-grow and flex-shrink to ensure uniform sizing in a flex row */
+  flex: 1 1 auto; 
 }
+
+/* New class to manage the content area */
+.card-body {
+  flex: 1 1 auto; /* Allows this area to grow and shrink */
+  overflow-y: auto; /* Adds scrollbar if content still overflows vertically */
+  word-wrap: break-word; /* Ensures long words wrap */
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Vertically center content */
+  align-items: center;     /* Horizontally center content */
+  text-align: center;
+  padding: 15px;           /* Add padding around the content */
+}
+
 
 .btn-analytics {
   background-color: #f8f9fa;
   border: 2px solid #e9ecef;
   color: #495057;
   transition: all 0.3s ease;
+  white-space: normal;
+  word-wrap: break-word;
 }
+
 
 .btn-analytics:hover {
   background-color: #007bff;
