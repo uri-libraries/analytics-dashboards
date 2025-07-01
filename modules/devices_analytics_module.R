@@ -2,6 +2,16 @@ devicesAnalyticsUI <- function(id) {
   ns <- NS(id)
   
   fluidPage(
+    # Back button
+    fluidRow(
+      column(12,
+             actionButton(ns("back_to_overview"), 
+                         label = "← Back to Overview",
+                         class = "btn btn-secondary",
+                         style = "margin-bottom: 15px;")
+      )
+    ),
+    
     titlePanel("Device Usage Analytics Dashboard"),
     
     fluidRow(
@@ -19,19 +29,23 @@ devicesAnalyticsUI <- function(id) {
       column(12,
              wellPanel(
                fluidRow(
-                 column(4,
+                 column(3,
                         p(strong("Data Status:"), style = "margin-top: 5px;"),
                         textOutput(ns("status"))
                  ),
-                 column(4,
+                 column(3,
                         selectInput(ns("chart_theme"), "Chart Theme:",
                                     choices = c("Default" = "default", 
                                                 "Colorful" = "colorful", 
                                                 "Professional" = "professional"),
                                     selected = "colorful")
                  ),
-                 column(4,
+                 column(3,
                         checkboxInput(ns("show_percentages"), "Show Percentages", value = TRUE)
+                 ),
+                 column(3,
+                        downloadButton(ns("download_raw_csv"), "Download Raw CSV", 
+                                     class = "btn-success", style = "margin-top: 5px;")
                  )
                )
              )
@@ -47,7 +61,11 @@ devicesAnalyticsUI <- function(id) {
                solidHeader = TRUE,
                width = NULL,
                height = "500px",
-               plotOutput(ns("desktop_donut"), height = "420px")
+               div(
+                 style = "cursor: pointer;",
+                 onclick = paste0("Shiny.setInputValue('", ns("expand_desktop_donut"), "', Math.random())"),
+                 plotOutput(ns("desktop_donut"), height = "420px")
+               )
              )
       ),
       column(4,
@@ -57,7 +75,11 @@ devicesAnalyticsUI <- function(id) {
                solidHeader = TRUE,
                width = NULL,
                height = "500px",
-               plotOutput(ns("mobile_donut"), height = "420px")
+               div(
+                 style = "cursor: pointer;",
+                 onclick = paste0("Shiny.setInputValue('", ns("expand_mobile_donut"), "', Math.random())"),
+                 plotOutput(ns("mobile_donut"), height = "420px")
+               )
              )
       ),
       column(4,
@@ -67,7 +89,11 @@ devicesAnalyticsUI <- function(id) {
                solidHeader = TRUE,
                width = NULL,
                height = "500px",
-               plotOutput(ns("browser_donut"), height = "420px")
+               div(
+                 style = "cursor: pointer;",
+                 onclick = paste0("Shiny.setInputValue('", ns("expand_browser_donut"), "', Math.random())"),
+                 plotOutput(ns("browser_donut"), height = "420px")
+               )
              )
       )
     ),
@@ -102,8 +128,18 @@ devicesAnalyticsUI <- function(id) {
   )
 }
 
-devicesAnalyticsServer <- function(id) {
+devicesAnalyticsServer <- function(id, parent_session = NULL, current_view = NULL) {
   moduleServer(id, function(input, output, session) {
+    
+    # Back button navigation
+    observeEvent(input$back_to_overview, {
+      if (!is.null(current_view)) {
+        current_view("overview")
+        updateTabsetPanel(session = parent_session, inputId = "navbar", selected = "overview")
+      } else if (!is.null(parent_session)) {
+        updateTabsetPanel(session = parent_session, inputId = "navbar", selected = "overview")
+      }
+    })
     
     # Parse the device usage CSV
     parsed_data <- reactive({
@@ -274,6 +310,139 @@ devicesAnalyticsServer <- function(id) {
         rownames = FALSE
       ) %>%
         DT::formatCurrency('Sessions', currency = "", interval = 3, mark = ",", digits = 0)
+    })
+    
+    # Download Raw CSV Handler
+    output$download_raw_csv <- downloadHandler(
+      filename = function() {
+        paste("device_usage_raw_data_", Sys.Date(), ".csv", sep = "")
+      },
+      content = function(file) {
+        req(parsed_data())
+        write.csv(parsed_data(), file, row.names = FALSE)
+      }
+    )
+    
+    # Modal observers for expandable charts
+    observeEvent(input$expand_desktop_donut, {
+      showModal(modalDialog(
+        title = "Laptop/Desktop Usage by OS - Expanded View",
+        plotOutput(session$ns("desktop_donut_modal"), height = "600px"),
+        size = "l",
+        easyClose = TRUE,
+        footer = modalButton("Close")
+      ))
+    })
+    
+    observeEvent(input$expand_mobile_donut, {
+      showModal(modalDialog(
+        title = "Mobile Client Usage - Expanded View",
+        plotOutput(session$ns("mobile_donut_modal"), height = "600px"),
+        size = "l",
+        easyClose = TRUE,
+        footer = modalButton("Close")
+      ))
+    })
+    
+    observeEvent(input$expand_browser_donut, {
+      showModal(modalDialog(
+        title = "Browser Usage Distribution - Expanded View",
+        plotOutput(session$ns("browser_donut_modal"), height = "600px"),
+        size = "l",
+        easyClose = TRUE,
+        footer = modalButton("Close")
+      ))
+    })
+    
+    # Modal plot outputs (same as regular plots but larger)
+    output$desktop_donut_modal <- renderPlot({
+      req(parsed_data())
+      data <- parsed_data() %>% filter(Category == "Desktop/Laptop")
+      colors <- get_colors()
+      
+      # Calculate percentages
+      data$Percentage <- round(data$Sessions / sum(data$Sessions) * 100, 1)
+      
+      if (input$show_percentages) {
+        data$Label <- paste0(data$Device, "\n", format(data$Sessions, big.mark = ","), 
+                           "\n(", data$Percentage, "%)")
+      } else {
+        data$Label <- paste0(data$Device, "\n", format(data$Sessions, big.mark = ","))
+      }
+      
+      ggplot(data, aes(x = 2, y = Sessions, fill = Device)) +
+        geom_col(width = 1, color = "white", size = 0.5) +
+        coord_polar(theta = "y", start = 0) +
+        xlim(0.5, 2.5) +
+        theme_void() +
+        theme(
+          legend.position = "bottom",
+          legend.text = element_text(size = 12),
+          plot.title = element_text(hjust = 0.5, size = 16),
+          legend.title = element_blank()
+        ) +
+        scale_fill_manual(values = colors, labels = data$Label) +
+        labs(title = "Desktop/Laptop Sessions by Operating System")
+    })
+    
+    output$mobile_donut_modal <- renderPlot({
+      req(parsed_data())
+      data <- parsed_data() %>% filter(Category == "Mobile")
+      colors <- get_colors()
+      
+      # Calculate percentages
+      data$Percentage <- round(data$Sessions / sum(data$Sessions) * 100, 1)
+      
+      if (input$show_percentages) {
+        data$Label <- paste0(data$Device, "\n", format(data$Sessions, big.mark = ","), 
+                           "\n(", data$Percentage, "%)")
+      } else {
+        data$Label <- paste0(data$Device, "\n", format(data$Sessions, big.mark = ","))
+      }
+      
+      ggplot(data, aes(x = 2, y = Sessions, fill = Device)) +
+        geom_col(width = 1, color = "white", size = 0.5) +
+        coord_polar(theta = "y", start = 0) +
+        xlim(0.5, 2.5) +
+        theme_void() +
+        theme(
+          legend.position = "bottom",
+          legend.text = element_text(size = 12),
+          plot.title = element_text(hjust = 0.5, size = 16),
+          legend.title = element_blank()
+        ) +
+        scale_fill_manual(values = colors, labels = data$Label) +
+        labs(title = "Mobile Device Sessions")
+    })
+    
+    output$browser_donut_modal <- renderPlot({
+      req(parsed_data())
+      data <- parsed_data() %>% filter(Category == "Browser")
+      colors <- get_colors()
+      
+      # Calculate percentages
+      data$Percentage <- round(data$Sessions / sum(data$Sessions) * 100, 1)
+      
+      if (input$show_percentages) {
+        data$Label <- paste0(data$Device, "\n", format(data$Sessions, big.mark = ","), 
+                           "\n(", data$Percentage, "%)")
+      } else {
+        data$Label <- paste0(data$Device, "\n", format(data$Sessions, big.mark = ","))
+      }
+      
+      ggplot(data, aes(x = 2, y = Sessions, fill = Device)) +
+        geom_col(width = 1, color = "white", size = 0.5) +
+        coord_polar(theta = "y", start = 0) +
+        xlim(0.5, 2.5) +
+        theme_void() +
+        theme(
+          legend.position = "bottom",
+          legend.text = element_text(size = 12),
+          plot.title = element_text(hjust = 0.5, size = 16),
+          legend.title = element_blank()
+        ) +
+        scale_fill_manual(values = colors, labels = data$Label) +
+        labs(title = "Browser Usage Distribution")
     })
   })
 }
