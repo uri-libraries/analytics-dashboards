@@ -7,6 +7,7 @@ library(tidyr)
 library(scales)
 library(RColorBrewer)
 library(bslib)
+library(plotly)
 
 # Source modules
 source("modules/overview_module.R")
@@ -15,6 +16,7 @@ source("modules/devices_table_module.R")
 source("modules/devices_analytics_module.R")
 source("modules/libguides_analytics_module.R")
 source("modules/facets_analytics_module.R")
+source("modules/zero_search_analytics_module.R")
 
 ui <- fluidPage(
   theme = bs_theme(version = 5, bootswatch = "minty"),
@@ -49,6 +51,11 @@ ui <- fluidPage(
   conditionalPanel(
     condition = "input.current_view == 'facets_analytics'",
     facetsAnalyticsUI("facets_analytics")
+  ),
+  
+  conditionalPanel(
+    condition = "input.current_view == 'zero_search_analytics'",
+    zero_search_analytics_ui("zero_search_analytics")
   )
 )
 
@@ -66,6 +73,7 @@ server <- function(input, output, session) {
   libguidesAnalyticsServer("libguides_analytics", session, current_view)
   devicesAnalyticsServer("devices_analytics", session, current_view)
   facetsAnalyticsServer("facets_analytics", session, current_view)
+  zero_search_analytics_server("zero_search_analytics")
 }
 
 shinyApp(ui = ui, server = server)
