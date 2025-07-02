@@ -52,17 +52,20 @@ overviewUI <- function(id) {
         )
       ),
       
-      # Coming Soon Card
+      # Facets Analytics Card
       card(
-        card_header("More Analytics"),
+        full_screen = TRUE,
+        card_header("Facets by Frequency"),
         card_body(
           div(class = "text-center",
-              icon("chart-bar", class = "fa-5x", style = "color: #6c757d; margin-bottom: 20px;"),
-              p("Additional analytics modules are in development.")
+              icon("filter", class = "fa-5x", style = "color: #dc3545; margin-bottom: 20px;"),
+              p("Analysis of search facet usage and selection patterns.")
           )
         ),
         card_footer(
-          div(class="text-muted text-center", em("Coming Soon"))
+          actionButton(ns("go_to_facets"), 
+                       label = "View Dashboard",
+                       class = "btn btn-danger w-100")
         )
       )
     ),
@@ -102,6 +105,15 @@ overviewServer <- function(id, parent_session, current_view = NULL) {
         current_view("devices_analytics")
       } else {
         updateTabsetPanel(session = parent_session, inputId = "navbar", selected = "devices_analytics")
+      }
+    })
+    
+    # Navigate to Facets dashboard
+    observeEvent(input$go_to_facets, {
+      if (!is.null(current_view)) {
+        current_view("facets_analytics")
+      } else {
+        updateTabsetPanel(session = parent_session, inputId = "navbar", selected = "facets_analytics")
       }
     })
     

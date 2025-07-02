@@ -14,6 +14,7 @@ source("modules/libguides_table_module.R")
 source("modules/devices_table_module.R")
 source("modules/devices_analytics_module.R")
 source("modules/libguides_analytics_module.R")
+source("modules/facets_analytics_module.R")
 
 ui <- fluidPage(
   theme = bs_theme(version = 5, bootswatch = "minty"),
@@ -43,6 +44,11 @@ ui <- fluidPage(
   conditionalPanel(
     condition = "input.current_view == 'devices_analytics'",
     devicesAnalyticsUI("devices_analytics")
+  ),
+  
+  conditionalPanel(
+    condition = "input.current_view == 'facets_analytics'",
+    facetsAnalyticsUI("facets_analytics")
   )
 )
 
@@ -59,6 +65,7 @@ server <- function(input, output, session) {
   # Keep analytics servers for navigation from overview
   libguidesAnalyticsServer("libguides_analytics", session, current_view)
   devicesAnalyticsServer("devices_analytics", session, current_view)
+  facetsAnalyticsServer("facets_analytics", session, current_view)
 }
 
 shinyApp(ui = ui, server = server)
