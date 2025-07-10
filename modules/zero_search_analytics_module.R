@@ -13,6 +13,21 @@ zero_search_analytics_ui <- function(id) {
   ns <- NS(id)
   
   fluidPage(
+    # Add custom CSS for dark mode compatibility
+    tags$head(
+      tags$style(HTML("
+        .dark-mode h2 {
+          color: #ffffff !important;
+        }
+        .dark-mode .box-title {
+          color: #ffffff !important;
+        }
+        .dark-mode p {
+          color: #ffffff !important;
+        }
+      "))
+    ),
+    
     # Title
     h2("Zero Search Analytics", style = "color: #2c3e50; text-align: center; margin-bottom: 30px;"),
     
@@ -191,10 +206,23 @@ zero_search_analytics_server <- function(id) {
              x = "User Group",
              y = "Total Failed Searches") +
         theme_minimal() +
-        theme(plot.title = element_text(hjust = 0.5))
+        theme(
+          plot.title = element_text(hjust = 0.5, color = "white"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major = element_line(color = "grey40"),
+          panel.grid.minor = element_line(color = "grey40")
+        )
       
       ggplotly(p, tooltip = "none") %>%
-        config(displayModeBar = FALSE)
+        config(displayModeBar = FALSE) %>%
+        layout(
+          paper_bgcolor = 'rgba(0,0,0,0)',
+          plot_bgcolor = 'rgba(0,0,0,0)',
+          font = list(color = "white")
+        )
     })
     
     # Search Scope Chart
@@ -211,10 +239,23 @@ zero_search_analytics_server <- function(id) {
              x = "Search Scope",
              y = "Total Failed Searches") +
         theme_minimal() +
-        theme(plot.title = element_text(hjust = 0.5))
+        theme(
+          plot.title = element_text(hjust = 0.5, color = "white"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major = element_line(color = "grey40"),
+          panel.grid.minor = element_line(color = "grey40")
+        )
       
-      ggplotly(p, tooltip = c("x", "y")) %>%
-        config(displayModeBar = FALSE)
+      ggplotly(p, tooltip = "none") %>%
+        config(displayModeBar = FALSE) %>%
+        layout(
+          paper_bgcolor = 'rgba(0,0,0,0)',
+          plot_bgcolor = 'rgba(0,0,0,0)',
+          font = list(color = "white")
+        )
     })
     
     # Top Failed Searches Chart
@@ -233,10 +274,23 @@ zero_search_analytics_server <- function(id) {
              x = "Search Query",
              y = "Number of Searches") +
         theme_minimal() +
-        theme(plot.title = element_text(hjust = 0.5))
+        theme(
+          plot.title = element_text(hjust = 0.5, color = "white"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major = element_line(color = "grey40"),
+          panel.grid.minor = element_line(color = "grey40")
+        )
       
-      ggplotly(p, tooltip = c("x", "y")) %>%
-        config(displayModeBar = FALSE)
+      ggplotly(p, tooltip = "none") %>%
+        config(displayModeBar = FALSE) %>%
+        layout(
+          paper_bgcolor = 'rgba(0,0,0,0)',
+          plot_bgcolor = 'rgba(0,0,0,0)',
+          font = list(color = "white")
+        )
     })
     
     # Sticky Facets Chart
@@ -252,10 +306,23 @@ zero_search_analytics_server <- function(id) {
              x = "Sticky Facets",
              y = "Total Failed Searches") +
         theme_minimal() +
-        theme(plot.title = element_text(hjust = 0.5))
+        theme(
+          plot.title = element_text(hjust = 0.5, color = "white"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major = element_line(color = "grey40"),
+          panel.grid.minor = element_line(color = "grey40")
+        )
       
-      ggplotly(p, tooltip = c("x", "y")) %>%
-        config(displayModeBar = FALSE)
+      ggplotly(p, tooltip = "none") %>%
+        config(displayModeBar = FALSE) %>%
+        layout(
+          paper_bgcolor = 'rgba(0,0,0,0)',
+          plot_bgcolor = 'rgba(0,0,0,0)',
+          font = list(color = "white")
+        )
     })
     
     # Data Table
